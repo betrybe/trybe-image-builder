@@ -28,4 +28,7 @@ docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS
 echo "Pushing the image to ECR..."
 docker push $REPO_URI:$TAG
 
+echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV
+echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
 echo "Success!"
