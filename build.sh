@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # Preparing the variables to be used by "docker build".
@@ -22,11 +22,17 @@ echo "URI: $REPO_URI"
 
 echo $BUILD_ARGS
 
-echo "Building the image..."
-docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS
+COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 
-echo "Pushing the image to ECR..."
-docker push $REPO_URI:$TAG
+if [[ "$COMMIT_MESSAGE" =~ "skip-build" ]]; then
+  echo "Build skipped!"
+else
+  echo "Building the image..."
+  docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS
+
+  echo "Pushing the image to ECR..."
+  docker push $REPO_URI:$TAG
+fi
 
 echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV
 echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
