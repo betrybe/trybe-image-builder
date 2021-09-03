@@ -13,6 +13,9 @@ inputs:
     description: 'Caminho para o arquivo Dockerfile.'
     required: false
     default: 'Dockerfile'
+  skip:
+    description: 'Indica que o build não deve ser feito, apenas a obtenção da URI e TAG da imagem.'
+    required: false
 
 runs:
   using: 'composite'
@@ -24,3 +27,4 @@ runs:
         PREFIX: ${{ inputs.prefix }}
         DOCKERFILE: ${{ inputs.dockerfile }}
         TAG: ${{ inputs.imageTag }}
+        SKIP_BUILD: ${{ inputs.skip }}
