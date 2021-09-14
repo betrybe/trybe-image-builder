@@ -6,7 +6,7 @@ VARS=$(env | grep ^$PREFIX | sed 's/'$PREFIX'//g')
 BUILD_ARGS=""
 for path in ${VARS}
 do
-  BUILD_ARGS="$BUILD_ARGS --build-arg $path"
+  BUILD_ARGS="$BUILD_ARGS --build-arg \"$path\""
 done
 
 echo "Checking if the repository exists on ECR..."
