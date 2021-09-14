@@ -2,11 +2,12 @@
 set -e
 
 # Preparing the variables to be used by "docker build".
-VARS=$(env | grep ^$PREFIX | sed 's/'$PREFIX'//g')
+VARS=$(env | sed -n 's/\('$PREFIX'.*\)=.*/\1/p')
 BUILD_ARGS=""
-for path in ${VARS}
+for var_name in ${VARS}
 do
-  BUILD_ARGS="$BUILD_ARGS --build-arg \"$path\""
+  NAME=$(echo $var_name | sed 's/'$PREFIX'_//g')
+  BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=\"$(printenv $var_name)\""
 done
 
 echo "Checking if the repository exists on ECR..."
