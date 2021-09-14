@@ -6,7 +6,7 @@ VARS=$(env | sed -n 's/\('$PREFIX'.*\)=.*/\1/p')
 BUILD_ARGS=""
 for var_name in ${VARS}
 do
-  NAME=$(echo $var_name | sed 's/'$PREFIX'_//g')
+  NAME=$(echo $var_name | sed 's/'$PREFIX'//g')
   BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=\"$(printenv $var_name)\""
 done
 
