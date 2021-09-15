@@ -7,7 +7,7 @@ BUILD_ARGS=""
 for var_name in ${VARS}
 do
   NAME=$(echo $var_name | sed 's/'$PREFIX'//g')
-  BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=$(printenv $var_name)"
+  BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=\"\${$var_name}\""
 done
 
 echo "Checking if the repository exists on ECR..."
@@ -29,7 +29,7 @@ if [[ "$COMMIT_MESSAGE" =~ "skip-build" || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
   echo "Building the image..."
-  docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS
+  bash -c "docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
 
   echo "Pushing the image to ECR..."
   docker push $REPO_URI:$TAG
