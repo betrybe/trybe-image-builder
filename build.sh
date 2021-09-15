@@ -7,7 +7,7 @@ BUILD_ARGS=""
 for var_name in ${VARS}
 do
   NAME=$(echo $var_name | sed 's/'$PREFIX'//g')
-  BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=\"$(printenv $var_name)\""
+  BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=$(printenv $var_name)"
 done
 
 echo "Checking if the repository exists on ECR..."
