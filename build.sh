@@ -2,11 +2,11 @@
 set -e
 
 # Preparing the variables to be used by "docker build".
-VARS=$(env | sed -n 's/\('$PREFIX'.*\)=.*/\1/p')
+VARS=$(env | awk -F = '/^BUILD_ENV_/ {print $1}')
 BUILD_ARGS=""
 for var_name in ${VARS}
 do
-  NAME=$(echo $var_name | sed 's/'$PREFIX'//g')
+  NAME=$(echo $var_name | sed 's/BUILD_ENV_//g')
   BUILD_ARGS="$BUILD_ARGS --build-arg $NAME=\"\${$var_name}\""
 done
 
