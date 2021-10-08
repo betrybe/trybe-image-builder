@@ -32,12 +32,8 @@ COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 if [[ "$COMMIT_MESSAGE" =~ "^\[skip-build\]" || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
-  echo "::group::Building the image..."
+  echo "::group::Build and push the image to ECR"
   bash -c "docker build . --push --cache-from=type=registry,ref=$REPO_URI --cache-from=type=registry,ref=$REPO_URI -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
-  echo "::endgroup::"
-
-  echo "::group::Pushing the image to ECR..."
-  docker push $REPO_URI:$TAG
   echo "::endgroup::"
 fi
 
