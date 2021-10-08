@@ -33,7 +33,7 @@ if [[ "$COMMIT_MESSAGE" =~ "^\[skip-build\]" || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
   echo "::group::Build and push the image to ECR"
-  bash -c "docker build . --push --cache-from=type=registry,ref=$REPO_URI --cache-from=type=registry,ref=$REPO_URI -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
+  bash -c "docker build . --push --cache-from=type=registry,ref=$REPO_URI:$TAG --cache-to=type=registry,ref=$REPO_URI:$TAG -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
   echo "::endgroup::"
 fi
 
