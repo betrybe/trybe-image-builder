@@ -19,6 +19,7 @@ aws ecr create-repository \
     --repository-name "${REPOSITORY}"  \
     --query "repository.repositoryUri" \
     --output text)
+
 echo "URI: $REPO_URI"
 
 echo "::group::Build args"
@@ -32,7 +33,7 @@ if [[ "$COMMIT_MESSAGE" =~ "^\[skip-build\]" || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
   echo "::group::Building the image..."
-  bash -c "docker build . --cache-from $REPO_URI -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
+  bash -c "docker build . --push --cache-from=type=registry,ref=$REPO_URI --cache-from=type=registry,ref=$REPO_URI -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
   echo "::endgroup::"
 
   echo "::group::Pushing the image to ECR..."
