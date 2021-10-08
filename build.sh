@@ -21,18 +21,23 @@ aws ecr create-repository \
     --output text)
 echo "URI: $REPO_URI"
 
+echo "::group::Build args"
 echo $BUILD_ARGS
+echo "::endgroup::"
+
 
 COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 
 if [[ "$COMMIT_MESSAGE" =~ "^\[skip-build\]" || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
-  echo "Building the image..."
-  bash -c "docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
+  echo "::group::Building the image..."
+  bash -c "docker build . --cache-from $REPO_URI -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
+  echo "::endgroup::"
 
-  echo "Pushing the image to ECR..."
+  echo "::group::Pushing the image to ECR..."
   docker push $REPO_URI:$TAG
+  echo "::endgroup::"
 fi
 
 echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV
