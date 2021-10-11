@@ -36,8 +36,8 @@ else
 
   bash -c "docker build \
   --output type=image,name=$REPO_URI:$TAG,push=true \
-  --cache-from=type=registry,ref=$GITHUB_REPOSITORY/$VERSION:$TAG \
-  --cache-to=type=registry,ref=$GITHUB_REPOSITORY/$VERSION:$TAG,mode=max \
+  --cache-from=type=registry,ref=$GITHUB_REPOSITORY:$TAG \
+  --cache-to=type=registry,ref=$GITHUB_REPOSITORY:$TAG,mode=max \
   -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
 
   echo "::endgroup::"
