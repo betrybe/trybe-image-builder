@@ -33,12 +33,14 @@ if [[ "$COMMIT_MESSAGE" =~ ^\[skip-build\] || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
   echo "::group::Check existing cache"
+  set +e
   docker manifest inspect "ghcr.io/$GITHUB_REPOSITORY:$TAG" > /dev/null
   if [[ "$?" == "0" ]]; then
     CACHE_FROM="$TAG"
   else
     CACHE_FROM="production"
   fi
+  set -e
 
   if [[ "$TAG" =~ ^production ]]; then
     CACHE_TO="production"
