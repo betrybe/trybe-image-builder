@@ -32,12 +32,27 @@ COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 if [[ "$COMMIT_MESSAGE" =~ ^\[skip-build\] || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
+  echo "::group::Check existing cache"
+  docker manifest inspect "ghcr.io/$GITHUB_REPOSITORY:$TAG" > /dev/null
+  if [[ "$?" == "0" ]]; then
+    CACHE_FROM="$TAG"
+  else
+    CACHE_FROM="production"
+  fi
+
+  if [[ "$TAG" =~ ^production ]]; then
+    CACHE_TO="production"
+  else
+    CACHE_TO=$TAG
+  fi
+  echo "::endgroup::"
+
   echo "::group::Build and push the image to ECR"
 
   bash -c "docker build \
   --output type=image,name=$REPO_URI:$TAG,push=true \
-  --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
-  --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG,mode=max \
+  --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_FROM \
+  --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max \
   -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
 
   echo "::endgroup::"
