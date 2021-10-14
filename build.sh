@@ -45,7 +45,7 @@ else
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
       --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
 
-    docker login -u $GITHUB_ACTOR -p $GITHUB_TOKEN ghcr.io
+    echo "$GITHUB_TOKEN" | docker login -u $GITHUB_ACTOR --password-stdin ghcr.io
 
     docker buildx create \
       --name cache-builder \
