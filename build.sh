@@ -32,24 +32,37 @@ COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 if [[ "$COMMIT_MESSAGE" =~ ^\[skip-build\] || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
-  echo "::group::Check existing cache"
-  if [[ "$TAG" =~ ^production ]]; then
-    CACHE_TO="production"
+  echo "::group::Checking cache"
+  if [[ "$ENABLE_CACHE" == "Y" ]]; then
+    if [[ "$TAG" =~ ^production ]]; then
+      CACHE_TO="production"
+    else
+      CACHE_TO=$TAG
+    fi
+
+    CACHE=" \
+      --output type=image,name=$REPO_URI:$TAG,push=true \
+      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
+      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
+      --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
+    echo "Cache ativado"
   else
-    CACHE_TO=$TAG
+    CACHE=""
+    echo "Cache desativado"
   fi
-  echo "cache_to: $CACHE_TO"
   echo "::endgroup::"
 
   echo "::group::Build and push the image to ECR"
   bash -c "docker build \
-  --output type=image,name=$REPO_URI:$TAG,push=true \
-  --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
-  --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
-  --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max \
+  $CACHE \
   -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
-
   echo "::endgroup::"
+
+  if [[ "$ENABLE_CACHE" != "Y" ]]; then
+    echo "::group::Pushing the image to ECR..."
+    docker push $REPO_URI:$TAG
+    echo "::endgroup::"
+  fi
 fi
 
 echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV

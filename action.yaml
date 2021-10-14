@@ -1,24 +1,27 @@
-name: 'Trybe Image Builder'
-author: 'Trybe'
-description: 'Esta GitHub Action permite realizar build de imagens obtendo variáveis de ambiente como argumentos de build.'
+name: "Trybe Image Builder"
+author: "Trybe"
+description: "Esta GitHub Action permite realizar build de imagens obtendo variáveis de ambiente como argumentos de build."
 inputs:
   imageTag:
-    description: 'Tag a ser utilizada antes de enviar para o ECR.'
+    description: "Tag a ser utilizada antes de enviar para o ECR."
     required: true
   prefix:
-    description: 'Prefixo nas variáveis para observar e incluir durante a construção da imagem.'
+    description: "Prefixo nas variáveis para observar e incluir durante a construção da imagem."
     required: false
-    default: 'BUILD_ENV_'
+    default: "BUILD_ENV_"
   dockerfile:
-    description: 'Caminho para o arquivo Dockerfile.'
+    description: "Caminho para o arquivo Dockerfile."
     required: false
-    default: 'Dockerfile'
+    default: "Dockerfile"
   skip:
-    description: 'Indica que o build não deve ser feito, apenas a obtenção da URI e TAG da imagem.'
+    description: "Indica que o build não deve ser feito, apenas a obtenção da URI e TAG da imagem."
+    required: false
+  enableCache:
+    description: "Flag para utilizar a funcionalidade de cache do docker"
     required: false
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - id: job
       shell: bash
@@ -28,3 +31,4 @@ runs:
         DOCKERFILE: ${{ inputs.dockerfile }}
         TAG: ${{ inputs.imageTag }}
         SKIP_BUILD: ${{ inputs.skip }}
+        ENABLE_CACHE: ${{ inputs.enableCache }}
