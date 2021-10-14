@@ -19,20 +19,50 @@ aws ecr create-repository \
     --repository-name "${REPOSITORY}"  \
     --query "repository.repositoryUri" \
     --output text)
+
 echo "URI: $REPO_URI"
 
+echo "::group::Build args"
 echo $BUILD_ARGS
+echo "::endgroup::"
+
 
 COMMIT_MESSAGE=`git log --format=%B -n 1 HEAD`
 
 if [[ "$COMMIT_MESSAGE" =~ ^\[skip-build\] || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
-  echo "Building the image..."
-  bash -c "docker build . -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS"
+  echo "::group::Checking cache"
+  if [[ "$ENABLE_CACHE" == "Y" ]]; then
+    if [[ "$TAG" =~ ^production ]]; then
+      CACHE_TO="production"
+    else
+      CACHE_TO=$TAG
+    fi
 
-  echo "Pushing the image to ECR..."
-  docker push $REPO_URI:$TAG
+    CACHE=" \
+      --output type=image,name=$REPO_URI:$TAG,push=true \
+      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
+      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
+      --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
+    echo "Cache ativado"
+  else
+    CACHE=""
+    echo "Cache desativado"
+  fi
+  echo "::endgroup::"
+
+  echo "::group::Build and push the image to ECR"
+  bash -c "docker build \
+  $CACHE \
+  -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
+  echo "::endgroup::"
+
+  if [[ "$ENABLE_CACHE" != "Y" ]]; then
+    echo "::group::Pushing the image to ECR..."
+    docker push $REPO_URI:$TAG
+    echo "::endgroup::"
+  fi
 fi
 
 echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV
