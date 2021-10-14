@@ -41,6 +41,7 @@ else
     fi
 
     CACHE=" \
+      --output type=image,name=$REPO_URI:$TAG,push=true \
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
       --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
