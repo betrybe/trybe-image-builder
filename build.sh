@@ -53,16 +53,16 @@ else
   echo "::endgroup::"
 
   echo "::group::Build and push the image to ECR"
-  bash -c "docker build \
+  bash -c "docker buildx build --push \
   $CACHE \
   -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
   echo "::endgroup::"
 
-  if [[ "$ENABLE_CACHE" != "Y" ]]; then
-    echo "::group::Pushing the image to ECR..."
-    docker push $REPO_URI:$TAG
-    echo "::endgroup::"
-  fi
+  # if [[ "$ENABLE_CACHE" != "Y" ]]; then
+  #   echo "::group::Pushing the image to ECR..."
+  #   docker push $REPO_URI:$TAG
+  #   echo "::endgroup::"
+  # fi
 fi
 
 echo "REPOSITORY_URI=$REPO_URI" >> $GITHUB_ENV
