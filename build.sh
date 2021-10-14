@@ -50,9 +50,9 @@ else
     bash -c "docker buildx create \
       --name cache-builder \
       --driver docker-container \
-      --buildkitd-flags \
+      --buildkitd-flags '\
       --allow-insecure-entitlement security.insecure \
-      --allow-insecure-entitlement network.host \
+      --allow-insecure-entitlement network.host' \
       --use"
 
     echo "Cache ativado"
