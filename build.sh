@@ -51,8 +51,8 @@ else
       --name cache-builder \
       --driver docker-container \
       --buildkitd-flags \
-      --allow-insecure-entitlement security.insecure 
-      --allow-insecure-entitlement network.host 
+      --allow-insecure-entitlement security.insecure \
+      --allow-insecure-entitlement network.host \
       --use
 
     echo "Cache ativado"
