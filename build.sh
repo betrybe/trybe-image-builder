@@ -47,13 +47,13 @@ else
 
     bash -c "echo $GITHUB_TOKEN > docker login ghcr.io -u $GITHUB_ACTOR --password-stdin"
 
-    docker buildx create \
+    bash -c "docker buildx create \
       --name cache-builder \
       --driver docker-container \
       --buildkitd-flags \
       --allow-insecure-entitlement security.insecure \
       --allow-insecure-entitlement network.host \
-      --use
+      --use"
 
     echo "Cache ativado"
   else
