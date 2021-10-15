@@ -45,15 +45,17 @@ else
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
       --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
 
-    echo "$GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+    env
 
-    bash -c "docker buildx create \
+    echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+    docker buildx create \
       --name cache-builder \
       --driver docker-container \
       --buildkitd-flags '\
       --allow-insecure-entitlement security.insecure \
       --allow-insecure-entitlement network.host' \
-      --use"
+      --use
 
     echo "Cache ativado"
   else
