@@ -41,10 +41,20 @@ else
     fi
 
     CACHE=" \
-      --output type=image,name=$REPO_URI:$TAG,push=true \
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
       --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
+
+    echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+    docker buildx create \
+      --name cache-builder \
+      --driver docker-container \
+      --buildkitd-flags '\
+      --allow-insecure-entitlement security.insecure \
+      --allow-insecure-entitlement network.host' \
+      --use
+
     echo "Cache ativado"
   else
     CACHE=""
@@ -53,9 +63,10 @@ else
   echo "::endgroup::"
 
   echo "::group::Build and push the image to ECR"
-  bash -c "docker buildx build --push \
-  $CACHE \
-  -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
+  bash -c "docker buildx build \
+    --output type=image,name=$REPO_URI:$TAG,push=true \
+    $CACHE \
+    -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
   echo "::endgroup::"
 fi
 
