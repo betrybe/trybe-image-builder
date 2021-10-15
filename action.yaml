@@ -19,6 +19,8 @@ inputs:
   enableCache:
     description: "Flag para utilizar a funcionalidade de cache do docker"
     required: false
+  githubToken:
+    description: "Github Token para logar no ghcr.io"
 
 runs:
   using: "composite"
@@ -32,3 +34,4 @@ runs:
         TAG: ${{ inputs.imageTag }}
         SKIP_BUILD: ${{ inputs.skip }}
         ENABLE_CACHE: ${{ inputs.enableCache }}
+        GITHUB_TOKEN: ${{ inputs.githubToken }}
