@@ -19,6 +19,7 @@ inputs:
   enableCache:
     description: "Flag para utilizar a funcionalidade de cache do docker"
     required: false
+    default: "Y"
   githubToken:
     description: "Github Token para logar no ghcr.io caso o cache esteja ativo"
     required: false
