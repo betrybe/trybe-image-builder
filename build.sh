@@ -33,7 +33,7 @@ if [[ "$COMMIT_MESSAGE" =~ ^\[skip-build\] || "$SKIP_BUILD" == "Y" ]]; then
   echo "Build skipped!"
 else
   echo "::group::Checking cache"
-  if [[ "$ENABLE_CACHE" == "Y" ]]; then
+  if [[ "$ENABLE_CACHE" == "Y" || "$ENABLE_CACHE" == "" ]]; then
     if [[ "$TAG" =~ ^production ]]; then
       CACHE_TO="production"
     else
@@ -42,8 +42,7 @@ else
 
     CACHE=" \
       --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
-      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
-      --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max"
+      --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG"
 
     echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
@@ -66,6 +65,7 @@ else
   bash -c "docker buildx build \
     --output type=image,name=$REPO_URI:$TAG,push=true \
     $CACHE \
+    --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$CACHE_TO,mode=max \
     -f $DOCKERFILE -t $REPO_URI:$TAG $BUILD_ARGS ."
   echo "::endgroup::"
 fi
