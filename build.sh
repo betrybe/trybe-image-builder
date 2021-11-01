@@ -48,13 +48,15 @@ else
 
     echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
+    docker context create tls-environment
+
     docker buildx create \
       --name cache-builder \
       --driver docker-container \
       --buildkitd-flags '\
       --allow-insecure-entitlement security.insecure \
       --allow-insecure-entitlement network.host' \
-      --use
+      --use tls-environment
 
     echo "Cache ativado"
   else
