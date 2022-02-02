@@ -26,8 +26,31 @@ build_docker_args () {
   echo $build_args
 }
 
+cache_tag=$TAG
+build_cache_tag () {
+  if [[ "$TAG" =~ ^production ]]; then
+    cache_tag="production"
+  fi
+
+  # If the repository is a monorepo the envvar `$REPOSITORY` is added as the cache tag sufix
+  # If the repository is not a monorepo the envvar `$REPOSITORY` is equals to repo name in the `$GITHUB_REPOSITORY`
+  #
+  # E.g.:
+  #     betrybe/go-trybe:staging.authentication-middleware
+  #     betrybe/go-trybe:production.authentication-service
+  if [[ ! "${GITHUB_REPOSITORY#betrybe\/}" == "$REPOSITORY" ]]; then
+    cache_tag="$cache_tag.$REPOSITORY"
+  fi
+}
+
 cache_args=""
 enable_cache () {
+  build_cache_tag
+  cache_args=" \
+    --output type=image,name=$repo_uri:$TAG,push=true \
+    --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$cache_tag \
+    --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$cache_tag,mode=max"
+
   echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
   docker context create tls-environment
@@ -46,17 +69,6 @@ enable_cache () {
 build_push_img_to_ecr () {
   echo "::group::Build and push the image to ECR"
 
-  cache_to=$TAG
-  if [[ "$TAG" =~ ^production ]]; then
-    cache_to="production"
-  fi
-
-  cache_args=" \
-    --output type=image,name=$repo_uri:$TAG,push=true \
-    --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:production \
-    --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$TAG \
-    --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$cache_to,mode=max"
-
   bash -c "docker buildx build --push \
     $cache_args \
     -f $DOCKERFILE -t $repo_uri:$TAG $build_args ."
@@ -74,8 +86,6 @@ build () {
 
   build_push_img_to_ecr
 }
-
-## EXEC
 
 echo "Checking if the repository exists on ECR..."
 repo_uri_ecr
