@@ -5,17 +5,6 @@ set -e
 vars=$(env | awk -F = '/^BUILD_ENV_/ {print $1}')
 
 repo_uri=""
-repo_uri_ecr () {
-  repo_uri=$(aws ecr describe-repositories \
-      --repository-names "${REPOSITORY}" \
-      --query "repositories[0].repositoryUri" \
-      --output text 2>/dev/null || \
-  aws ecr create-repository \
-      --repository-name "${REPOSITORY}"  \
-      --query "repository.repositoryUri" \
-      --output text)
-}
-
 build_args=""
 build_docker_args () {
   for var_name in ${vars}
@@ -88,7 +77,14 @@ build () {
 }
 
 echo "Checking if the repository exists on ECR..."
-repo_uri_ecr
+repo_uri=$(aws ecr describe-repositories \
+      --repository-names "${REPOSITORY}" \
+      --query "repositories[0].repositoryUri" \
+      --output text 2> /dev/null)
+if [ -z "$repo_uri" ]; then
+  echo "You must create the project into @betrybe/infrastructure-projects to create the ECR repository"
+  exit 1
+fi
 echo "URI: $repo_uri"
 
 echo "::group::Build args"
