@@ -81,7 +81,7 @@ repo_uri=$(aws ecr describe-repositories \
       --repository-names "${REPOSITORY}" \
       --query "repositories[0].repositoryUri" \
       --output text 2> /dev/null)
-if [ -z "$repo_uri" ]; then
+if [[ -z "$repo_uri" ]]; then
   echo "You must create the project into @betrybe/infrastructure-projects to create the ECR repository"
   exit 1
 fi
