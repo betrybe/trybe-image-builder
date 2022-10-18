@@ -74,7 +74,8 @@ build () {
   echo "::endgroup::"
 
   build_push_img_to_ecr
-  "$SCAN_SCRIPT_PATH" "$repo_uri:$TAG"
+  # TODO: investigate why this is slow
+  # "$SCAN_SCRIPT_PATH" "$repo_uri:$TAG"
 }
 
 echo "Checking if the repository exists on ECR..."
