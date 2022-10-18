@@ -37,3 +37,4 @@ runs:
         SKIP_BUILD: ${{ inputs.skip }}
         ENABLE_CACHE: ${{ inputs.enableCache }}
         GITHUB_TOKEN: ${{ inputs.githubToken }}
+        SCAN_SCRIPT_PATH: ${{ github.action_path }}/trivy_scan_image.sh
