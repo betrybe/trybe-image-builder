@@ -40,7 +40,7 @@ enable_cache () {
     --cache-from=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$cache_tag \
     --cache-to=type=registry,ref=ghcr.io/$GITHUB_REPOSITORY:$cache_tag,mode=max"
 
-  echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+  echo $GITHUB_TOKEN | docker login ghcr.io -u trybe-tech-ops --password-stdin
 
   docker context create tls-environment
 
