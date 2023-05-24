@@ -15,7 +15,8 @@ build_docker_args () {
   echo $build_args
 }
 
-cache_tag=$TAG
+cache_tag=${TAG%%-*}
+echo "Image cache tag: $cache_tag"
 build_cache_tag () {
   if [[ "$TAG" =~ ^production ]]; then
     cache_tag="production"
